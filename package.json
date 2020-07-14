@@ -1,0 +1,20 @@
+{
+  "name": "flexible-intruder",
+  "version": "1.0.0",
+  "description": "Simulate the motion of a flexible intruder passing through a granular medium using threejs and ammojs",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Benjy Marks",
+  "license": "ISC",
+  "repository": {
+  "type" : "git",
+  "url" : "https://github.com/benjym/flexible-intruder.git"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "three": "^0.118.3"
+  }
+}
