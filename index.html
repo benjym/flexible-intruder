@@ -37,6 +37,9 @@
 			var pos = new THREE.Vector3();
 			var quat = new THREE.Quaternion();
             var controller;
+            var L,W,H;
+            var direction = 1;
+            var velocity = 1; // velocity of controller for soft body
 
 			// Physics variables
 			var gravityConstant = - 9.8;
@@ -81,7 +84,7 @@
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xbfd1e5 );
 
-				camera.position.set( - 7, 5, 8 );
+				// camera.position.set( - 7, 5, 8 );
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -162,16 +165,18 @@
 				} );
 
                 // Box Geometry
-                var L = 10; // length of box (in x direction)
-                var W = 5; // width of box (in z direction)
-                var H = 3; // height of box (in y direction)
+                L = 30; // length of box (in x direction)
+                W = 5; // width of box (in z direction)
+                H = 10; // height of box (in y direction)
+
+                camera.position.set( 0, 3*H, -5*W );
 
                 // Soft body properties
-				var mass = 100; // mass of the soft object
+				var mass = 1000; // mass of the soft object
                 var pressure = 1000; // internal pressure within the soft object
-                var L_flex = 5; // length of flexible intruder
+                var L_flex = H; // length of flexible intruder
                 var aspect_ratio = 0.1; // aspect ratio of flexible intruder
-                var depth = 3; //depth of intruder below top of box
+                var depth = H/2; //depth of intruder below top of box
                 // add controller
                 // pos.set( -L/2.+1, H+L_flex, 0 );
 				// controller = createParalellepiped( 1, 1, 1, 0, pos, quat, new THREE.MeshPhongMaterial( { color: 0xFF0000 } ) );
@@ -179,14 +184,14 @@
 				// controller.receiveShadow = true;
                 createKinematicBox(-L/2.+1, H+L_flex-depth, 0 );
                 // Create soft volumes
-				var boxGeometry = new THREE.BoxBufferGeometry( L_flex*aspect_ratio, L_flex, L_flex*aspect_ratio, 4, 20, 4 );
+				var boxGeometry = new THREE.BoxBufferGeometry( L_flex*aspect_ratio, L_flex, L_flex*aspect_ratio, 4, 100, 4 );
 				boxGeometry.translate( -L/2.+1., H+L_flex/2.-depth, 0 );
 				var softbody = createSoftVolume( boxGeometry, mass, pressure );
 
                 softbody.appendAnchor(0,controller.userData.physicsBody, true, 1 );
-                // softbody.appendAnchor(1,controller.userData.physicsBody, true, 1 );
-                // softbody.appendAnchor(2,controller.userData.physicsBody, true, 1 );
-                // softbody.appendAnchor(3,controller.userData.physicsBody, true, 1 );
+                softbody.appendAnchor(1,controller.userData.physicsBody, true, 1 );
+                softbody.appendAnchor(2,controller.userData.physicsBody, true, 1 );
+                softbody.appendAnchor(3,controller.userData.physicsBody, true, 1 );
 
 
 
@@ -556,7 +561,9 @@
 				physicsWorld.stepSimulation( deltaTime, 10 );
 
                 // Update controller position
-                controller.position.x += 0.1*deltaTime;
+                if ( controller.position.x >= L/2. ) { direction = -1; }
+                if ( controller.position.x <= -L/2. ) { direction = 1; }
+                controller.position.x += direction*velocity*deltaTime;
                 var tmpPos = new THREE.Vector3();
                 var ammoTmpPos = new Ammo.btVector3();
                 var tmpTrans = new Ammo.btTransform();
